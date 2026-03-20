@@ -1,38 +1,63 @@
+/* =========================================
+   1. VARIABLES & BASE STYLES
+   ========================================= */
 :root {
   --bg-color: #1e1e1e;
   --sidebar-color: #252526;
   --border-color: #3c3c3c;
   --text-color: #cccccc;
   --accent-color: #007acc;
+  --accent-hover: #0098ff;
+  --card-bg: #252526;
+  --card-hover: #2d2d30;
 }
 
 body {
   margin: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden; /* Mencegah scroll ganda di seluruh window */
 }
 
-.container {
+/* =========================================
+   2. MAIN LAYOUT (WRAPPER & CONTAINERS)
+   ========================================= */
+.app-wrapper {
   display: flex;
+  flex-direction: column;
   height: 100vh;
 }
 
+.container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
 .sidebar {
-  width: 350px;
+  /* width: 350px; */
   background-color: var(--sidebar-color);
   border-right: 1px solid var(--border-color);
-  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  padding: 0px 15px 15px 15px;
   overflow-y: auto;
 }
 
-.connection-form {
+.content {
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Biarkan child element (viewer) yang menangani scroll */
 }
 
-input {
+/* =========================================
+   3. FORMS, BUTTONS & INPUTS
+   ========================================= */
+input,
+select {
   background: #3c3c3c;
   border: 1px solid #555;
   color: white;
@@ -47,19 +72,112 @@ button {
   padding: 8px;
   cursor: pointer;
   border-radius: 4px;
+  transition: filter 0.2s ease;
 }
 
 button:hover {
   filter: brightness(1.2);
 }
 
+button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Specific Buttons */
+.btn-send {
+  width: 100%;
+  margin-top: 10px;
+  background-color: #28a745;
+}
+
+.btn-send-execute {
+  background-color: #28a745;
+  font-weight: bold;
+  padding: 12px;
+  font-size: 16px;
+}
+
+.btn-clear {
+  background-color: #d9534f;
+}
+
+.btn-sm {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 10px 8px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* color: #010101; */
+}
+
+.btn-icon {
+  background: transparent;
+  padding: 0;
+  font-size: 16px;
+  opacity: 0.6;
+}
+.btn-icon:hover {
+  opacity: 1;
+  background: transparent;
+}
+
+.btn-copy {
+  background: transparent;
+  border: 1px solid #555;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+.btn-copy:hover {
+  background: #444;
+}
+
+/* Form Layouts */
+.connection-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.send-form {
+  width: 90%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.json-editor {
+  background-color: #1a1a1a;
+  color: #dcdcaa;
+  font-family: "Courier New", Courier, monospace;
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  resize: vertical;
+}
+
+/* =========================================
+   4. SIDEBAR TREE VIEW
+   ========================================= */
 .status-text {
   font-size: 11px;
   color: #888;
   margin-top: 10px;
+  text-align: center;
 }
 
-/* Tree View Styling */
 details {
   margin: 5px 0;
 }
@@ -70,7 +188,6 @@ summary {
   border-radius: 4px;
   list-style: none; /* Hilangkan arrow bawaan */
 }
-
 summary:hover {
   background-color: #37373d;
 }
@@ -86,57 +203,310 @@ summary:hover {
   gap: 5px;
   margin: 5px 0 10px 20px;
 }
-
 .actions button {
   font-size: 10px;
   padding: 4px 8px;
   background-color: #444;
 }
 
-.btn-send {
-  width: 100%;
-  margin-top: 10px;
-  background-color: #28a745;
+.count-badge {
+  font-size: 11px;
+  background-color: #333;
+  color: #aaa;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 10px;
+  font-family: "Courier New", Courier, monospace;
+}
+.count-badge:has(span.has-dlq) {
+  color: #ff4444;
 }
 
-.content {
-  flex: 1;
+/* =========================================
+   5. MESSAGE VIEWER (MASTER-DETAIL LAYOUT)
+   ========================================= */
+.message-viewer {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: row; /* Master & Detail bersebelahan */
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  gap: 0;
 }
 
-.send-form {
-  width: 90%;
-  max-width: 800px;
+.master-list-pane {
+  flex: 1; /* Mengambil sisa ruang */
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  border-right: 1px solid var(--border-color);
+  padding: 15px;
+  overflow: hidden;
 }
 
+.detail-pane {
+  /* width: 400px; <--- HAPUS BARIS INI */
+  background-color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  overflow-y: auto;
+  /* border-left: 1px solid var(--border-color); <--- HAPUS INI JUGA (pindah ke resizer) */
+}
+
+.viewer-header,
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+.detail-header h4 {
+  margin: 0;
+  color: #888;
+}
+
+.viewer-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.viewer-controls select {
+  padding: 4px;
+}
+
+/* =========================================
+   6. CARDS & MESSAGE LIST
+   ========================================= */
+
+.select-list {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #1c1a1a;
+  background-color: #3b3737;
+  color: #010101;
+}
+
+.select-list,
+::picker(.select-list) {
+  appearance: base-select;
+}
+
+::picker(select-list) {
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding-right: 5px;
+}
+
+.message-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+.message-card:hover {
+  background-color: var(--card-hover);
+  border-color: #555;
+}
+
+.message-card.selected {
+  border-color: var(--accent-color);
+  background-color: #1e2a35;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  background: #2d2d30;
+  padding: 8px 15px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.msg-index {
+  font-weight: bold;
+  color: var(--accent-color);
+  font-size: 14px;
+}
+
+.msg-subject {
+  margin-left: 10px;
+  font-size: 13px;
+  color: #ce9178;
+}
+
+.body-preview {
+  padding: 8px 15px;
+  font-size: 11px;
+  color: #888;
+  font-family: monospace;
+  font-style: italic;
+}
+
+/* =========================================
+   7. MESSAGE BODY (JSON CONTENT)
+   ========================================= */
+.message-body {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: "Fira Code", Consolas, "Courier New", monospace;
+  font-size: 13px;
+  color: #9cdcfe;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.mini-body {
+  max-height: 150px;
+  border-top: 1px solid #333;
+}
+
+.detail-body {
+  background-color: #252526;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+/* =========================================
+   8. DETAIL PANE TABLES
+   ========================================= */
+.properties-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 20px;
+  table-layout: fixed;
+}
+
+.properties-table td {
+  padding: 6px 4px;
+  border-bottom: 1px solid #333;
+  vertical-align: top;
+}
+
+.properties-table td:first-child {
+  color: #aaa;
+  width: 120px;
+  font-weight: bold;
+}
+
+.properties-table td code {
+  color: #ce9178;
+  background-color: #2d2d2d;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.props-custom td:first-child {
+  color: #9cdcfe;
+}
+
+/* =========================================
+   9. PAGINATION
+   ========================================= */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* =========================================
+   10. STATUS BAR (FOOTER)
+   ========================================= */
+.status-bar {
+  height: 28px;
+  min-height: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  font-size: 12px;
+  color: white;
+  transition: background-color 0.3s ease;
+  z-index: 100;
+}
+
+.status-ready {
+  background-color: #007acc;
+}
+.status-loading {
+  background-color: #68217a;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.log-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 600px;
+}
+
+body:has(.status-loading) * {
+  cursor: progress !important;
+}
+
+/* =========================================
+   11. UTILITIES
+   ========================================= */
 .highlight {
   color: var(--accent-color);
 }
 
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* =========================================
+   12. DRAG & RESIZE SPLITTER
+   ========================================= */
+.panel-resizer {
+  width: 5px; /* Lebar area yang bisa di-klik */
+  background-color: var(--border-color);
+  cursor: col-resize; /* Kursor berubah jadi panah kiri-kanan */
+  transition: background-color 0.2s ease;
+  z-index: 10;
 }
 
-.json-editor {
-  background-color: #1a1a1a;
-  color: #dcdcaa; /* Warna font ala VS Code */
-  font-family: 'Courier New', Courier, monospace;
-  padding: 15px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  resize: vertical;
+/* Warna berubah jadi biru saat disorot atau sedang ditarik */
+.panel-resizer:hover,
+.panel-resizer.resizing {
+  background-color: var(--accent-color);
 }
 
-.btn-send-execute {
-  background-color: #28a745;
-  font-weight: bold;
-  padding: 12px;
-  font-size: 16px;
+.panel-resizer-left {
+  width: 5px; /* Lebar area yang bisa di-klik */
+  background-color: var(--border-color);
+  cursor: col-resize; /* Kursor berubah jadi panah kiri-kanan */
+  transition: background-color 0.2s ease;
+  z-index: 10;
+}
+
+/* Warna berubah jadi biru saat disorot atau sedang ditarik */
+.panel-resizer-left:hover,
+.panel-resizer-left.resizing {
+  background-color: var(--accent-color);
 }
