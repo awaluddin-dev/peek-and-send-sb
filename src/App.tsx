@@ -46,6 +46,8 @@ interface ServiceBusMessage {
   properties: Record<string, string>;
 }
 
+// trying to refactor
+
 function App() {
   const [savedConnections, setSavedConnections] = useState<SavedConnection[]>(
     [],
